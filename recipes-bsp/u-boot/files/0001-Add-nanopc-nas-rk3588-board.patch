@@ -35,17 +35,17 @@ index 39049ab35a9..2f1a4e37ce4 100644
 +	help
 +	  The CM3588 NAS is a Rockchip RK3588 based SBC by FriendlyElec.
 +
- config TARGET_RK3588_NEU6
- 	bool "Edgeble Neural Compute Module 6(Neu6) SoM"
+ config TARGET_NOVA_RK3588
+ 	bool "Indiedroid Nova RK3588"
  	select BOARD_LATE_INIT
-@@ -223,6 +229,7 @@ config TEXT_BASE
+@@ -232,6 +238,7 @@ config TEXT_BASE
  
  source "board/edgeble/neural-compute-module-6/Kconfig"
  source "board/friendlyelec/nanopc-t6-rk3588/Kconfig"
 +source "board/friendlyelec/nanopc-nas-rk3588/Kconfig"
+ source "board/indiedroid/nova/Kconfig"
  source "board/pine64/quartzpro64-rk3588/Kconfig"
  source "board/turing/turing-rk1-rk3588/Kconfig"
- source "board/radxa/rock5a-rk3588s/Kconfig"
 diff --git a/board/friendlyelec/nanopc-nas-rk3588/Kconfig b/board/friendlyelec/nanopc-nas-rk3588/Kconfig
 new file mode 100644
 index 00000000000..243fca95cd4
@@ -191,8 +191,8 @@ index d8e67821365..e7579a500f0 100644
       - FriendlyElec NanoPC-T6 (nanopc-t6-rk3588)
 +     - FriendlyElec CM3588 NAS (nanopc-nas-rk3588)
       - Generic RK3588S/RK3588 (generic-rk3588)
+      - Indiedroid Nova (nova-rk3588s)
       - Pine64 QuartzPro64 (quartzpro64-rk3588)
-      - Radxa ROCK 5A (rock5a-rk3588s)
 diff --git a/dts/upstream/Bindings/arm/rockchip.yaml b/dts/upstream/Bindings/arm/rockchip.yaml
 index 5cf5cbef2cf..b67bede6e49 100644
 --- a/dts/upstream/Bindings/arm/rockchip.yaml

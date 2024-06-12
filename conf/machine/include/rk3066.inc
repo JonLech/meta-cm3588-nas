@@ -3,9 +3,9 @@
 
 SOC_FAMILY = "rk3066"
 
-require conf/machine/include/arm/armv7a/tune-cortexa9.inc
 require conf/machine/include/soc-family.inc
 require conf/machine/include/rockchip-defaults.inc
+require conf/machine/include/arm/armv7a/tune-cortexa9.inc
 
 SERIAL_CONSOLES = "115200;ttyS2"
 

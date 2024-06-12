@@ -1,8 +1,11 @@
+SOC_FAMILY ?= "rk3588s"
 MACHINEOVERRIDES =. "rk3588s:"
 DEFAULTTUNE ?= "cortexa76-cortexa55-crypto"
 
-require conf/machine/include/arm/armv8-2a/tune-cortexa76-cortexa55.inc
+ROCKCHIP_CLOSED_TPL ?= "1"
+
 require conf/machine/include/rockchip-defaults.inc
+require conf/machine/include/arm/armv8-2a/tune-cortexa76-cortexa55.inc
 require conf/machine/include/rockchip-wic.inc
 
 KBUILD_DEFCONFIG ?= "defconfig"

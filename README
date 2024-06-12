@@ -47,6 +47,7 @@ Status of supported boards:
 
 Notes:
 -----
+  rk3308 rkbin:
 	The latest ddr initializer for the rk3308 platform does not output
 	diagnostic messages to uart0. This causes a bunch of gibberish to
 	be printed to the console window which only becomes legible once
@@ -65,6 +66,16 @@ Notes:
 
 		RKBIN_RK3308_LATEST = "1"
 	
+	in the configuration (e.g. conf/local.conf).
+
+  wic compression:
+	For boards which build and boot wic images, the user can optionally specify
+	a compression using the WIC_COMPRESSION_EXTENSION variable. By default "wic"
+	images are built, but if the user would prefer, say "wic.xz" images, simply
+	specify:
+
+		WIC_COMPRESSION_EXTENSION = ".xz"
+
 	in the configuration (e.g. conf/local.conf).
 
 U-Boot Environment:

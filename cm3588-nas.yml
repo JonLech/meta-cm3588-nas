@@ -1,0 +1,46 @@
+header:
+  version: 18
+
+machine: nanopc-nas
+distro: naxos
+
+target: cm3588nas-image
+#target: rockchip-rauc-bundle
+
+repos:
+  meta-cm3588-nas:
+  poky:
+    url: https://git.yoctoproject.org/poky
+    commit: 5d81f07c16c7e3be8310158796f6c23eb15de74d
+    path: "layers/poky"
+    layers:
+      meta:
+      meta-poky:
+  meta-arm:
+    url: https://git.yoctoproject.org/meta-arm
+    commit: 34c8608d87959b2ef2897054f90246749a3c582e
+    path: "layers/meta-arm"
+    layers:
+      meta-arm:
+      meta-arm-toolchain:
+  meta-openembedded:
+    url: https://git.openembedded.org/meta-openembedded
+    commit: 868c11831bb5932d57d6a19b9a5feb3902863748
+    path: "layers/meta-openembedded"
+    layers:
+      meta-oe:
+      meta-python:
+      meta-networking:
+  meta-rockchip:
+    url: https://git.yoctoproject.org/meta-rockchip
+    commit: 0aba79e47951b049bcdd39e07f660c665e257393
+    path: "layers/meta-rockchip"
+  meta-rauc:
+    url: https://github.com/rauc/meta-rauc
+    commit: 2ee80ebc81c30d34fe7a86ef8e8e2e580f569641
+    path: "layers/meta-rauc"
+
+local_conf_header:
+  meta-cm3588-nas: |
+    INHERIT += "extrausers"
+    EXTRA_USERS_PARAMS = "usermod -p '$(openssl passwd naxos)' root"

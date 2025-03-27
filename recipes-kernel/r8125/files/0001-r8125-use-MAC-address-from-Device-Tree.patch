@@ -1,0 +1,66 @@
+From 477eb40d7fac043851832b001b618c87e99322ef Mon Sep 17 00:00:00 2001
+From: Jon Lech Johansen <jon@doubletwist.com>
+Date: Mon, 24 Mar 2025 18:00:41 -0500
+Subject: [PATCH] r8125: use MAC address from Device Tree
+
+Upstream-Status: Pending
+---
+ r8125_n.c | 14 ++++++++++++++
+ 1 file changed, 14 insertions(+)
+
+diff --git a/r8125_n.c b/r8125_n.c
+index 595afa3..fac99ab 100644
+--- a/r8125_n.c
++++ b/r8125_n.c
+@@ -56,6 +56,7 @@
+ #include <linux/init.h>
+ #include <linux/rtnetlink.h>
+ #include <linux/completion.h>
++#include <linux/of.h>
+ 
+ #if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,26)
+ #if LINUX_VERSION_CODE < KERNEL_VERSION(5,4,0)
+@@ -211,6 +212,13 @@ static struct pci_device_id rtl8125_pci_tbl[] = {
+ 
+ MODULE_DEVICE_TABLE(pci, rtl8125_pci_tbl);
+ 
++static const struct of_device_id rtl8125_of_match[] = {
++        { .compatible = "realtek,rtl8125" },
++        { }
++};
++
++MODULE_DEVICE_TABLE(of, rtl8125_of_match);
++
+ static int use_dac = 1;
+ static int timer_count = 0x2600;
+ static int timer_count_v2 = (0x2600 / 0x100);
+@@ -15424,6 +15432,10 @@ rtl8125_get_mac_address(struct net_device *dev)
+         int i;
+         u8 mac_addr[MAC_ADDR_LEN];
+ 
++        i = eth_platform_get_mac_address(tp_to_dev(tp), mac_addr);
++        if (!i)
++            goto done;
++
+         for (i = 0; i < MAC_ADDR_LEN; i++)
+                 mac_addr[i] = RTL_R8(tp, MAC0 + i);
+ 
+@@ -15446,6 +15458,7 @@ rtl8125_get_mac_address(struct net_device *dev)
+                 tp->random_mac = 1;
+         }
+ 
++done:
+         rtl8125_hw_address_set(dev, mac_addr);
+         rtl8125_rar_set(tp, mac_addr);
+ 
+@@ -21041,6 +21054,7 @@ static struct pci_driver rtl8125_pci_driver = {
+         .driver.pm	= RTL8125_PM_OPS,
+ #endif
+ #endif
++        .driver.of_match_table = rtl8125_of_match,
+ };
+ 
+ static int __init
+-- 
+2.34.1
+

@@ -1,0 +1,47 @@
+From 3301d3d4b99f3d590c8672494accd67c3ae61c82 Mon Sep 17 00:00:00 2001
+From: Jon Lech Johansen <jon@doubletwist.com>
+Date: Tue, 25 Mar 2025 11:55:04 -0500
+Subject: [PATCH] Add ethernet node and alias to friendlyelec-cm3588 DTS
+
+Upstream-Status: Pending
+---
+ .../dts/rockchip/rk3588-friendlyelec-cm3588.dtsi | 16 ++++++++++++++++
+ 1 file changed, 16 insertions(+)
+
+diff --git a/arch/arm64/boot/dts/rockchip/rk3588-friendlyelec-cm3588.dtsi b/arch/arm64/boot/dts/rockchip/rk3588-friendlyelec-cm3588.dtsi
+index e3a9598b99fc..0fb316ecbd4b 100644
+--- a/arch/arm64/boot/dts/rockchip/rk3588-friendlyelec-cm3588.dtsi
++++ b/arch/arm64/boot/dts/rockchip/rk3588-friendlyelec-cm3588.dtsi
+@@ -20,6 +20,7 @@ / {
+ 	aliases {
+ 		mmc0 = &sdhci;
+ 		mmc1 = &sdmmc;
++		ethernet0 = &ethernet0;
+ 	};
+ 
+ 	chosen {
+@@ -254,6 +255,21 @@ &pcie2x1l2 {
+ 	reset-gpios = <&gpio4 RK_PA4 GPIO_ACTIVE_HIGH>;
+ 	vpcie3v3-supply = <&vcc_3v3_pcie20>;
+ 	status = "okay";
++
++	pcie@0,0 {
++		reg = <0x00400000 0 0 0 0>;
++		#address-cells = <3>;
++		#size-cells = <2>;
++		ranges;
++		device_type = "pci";
++		bus-range = <0x40 0x4f>;
++
++		ethernet0: ethernet@41,0 {
++			compatible = "realtek,rtl8125";
++			reg = <0x00410000 0x0 0x0 0x0 0x0>;
++			local-mac-address = [00 00 00 00 00 00];
++		};
++	};
+ };
+ 
+ &pinctrl {
+-- 
+2.34.1
+

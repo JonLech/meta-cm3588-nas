@@ -1,0 +1,13 @@
+[Unit]
+Description=Mount NVME drive
+ConditionPathExists=/dev/nvme0n1
+After=local-fs.target udisks2.service
+Requires=local-fs.target udisks2.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/libexec/nvme-mount
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target

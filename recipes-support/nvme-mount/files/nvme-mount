@@ -1,0 +1,43 @@
+#!/bin/sh
+set -x
+set -e
+set -u
+set -o pipefail
+
+# abort if no NVME drive present
+test -b /dev/nvme0n1 || exit 0
+
+# abort if NVME drive has partition
+test -b /dev/nvme0n1p1 && exit 0
+
+UDISKS_SERVICE="org.freedesktop.UDisks2"
+UDISKS_PATH="/org/freedesktop/UDisks2"
+UDISKS_BD_PATH="$UDISKS_PATH/block_devices/nvme0n1"
+FS_INTERFACE="org.freedesktop.UDisks2.Filesystem"
+PT_INTERFACE="org.freedesktop.UDisks2.PartitionTable"
+DBUS_MANAGER="org.freedesktop.DBus.ObjectManager"
+
+MOUNT_CMD="busctl call --json=pretty \$UDISKS_SERVICE \${UDISKS_BD_PATH} \${UDISKS_SERVICE}.Filesystem Mount \"a{sv}\" 0 | jq -r '.data[0]'"
+
+read -r FS_SIZE FS_MOUNTPS HAS_PT <<< $(busctl call --json=pretty "$UDISKS_SERVICE" "$UDISKS_PATH" "$DBUS_MANAGER" GetManagedObjects | jq ".data[][\"${UDISKS_BD_PATH}\"]" | jq -r "[(.[\"$FS_INTERFACE\"].Size.data // 0), (.[\"$FS_INTERFACE\"].MountPoints.data | length // 0), (.[\"$PT_INTERFACE\"] | length > 0 // false | if . then 1 else 0 end)] | join(\" \")")
+
+# abort if partition table exists
+[ "$HAS_PT" -eq 1 ] && exit 0
+
+if [ $FS_SIZE -ne 0 ]; then
+  if [ $FS_MOUNTPS -ne 0 ]; then
+    echo "NVME drive already mounted."
+    exit 0
+  fi
+else
+  echo "Formatting NVME drive as btrfs."
+  busctl call "$UDISKS_SERVICE" "${UDISKS_BD_PATH}" "${UDISKS_SERVICE}.Block" Format "sa{sv}" "btrfs" 0
+fi
+
+MOUNT_POINT="$(eval "$MOUNT_CMD")"
+
+echo "Bind mounting NVME drive as /media/nvme."
+mkdir -p /media/nvme
+mount --bind "$MOUNT_POINT" /media/nvme
+chgrp users /media/nvme
+chmod g+rw /media/nvme

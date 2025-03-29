@@ -43,4 +43,7 @@ repos:
 local_conf_header:
   meta-cm3588-nas: |
     INHERIT += "extrausers"
-    EXTRA_USERS_PARAMS = "usermod -p '$(openssl passwd naxos)' root"
+    EXTRA_USERS_PARAMS = "\
+        usermod -p '$(openssl passwd naxos)' root; \
+        useradd -g users nas; \
+    "

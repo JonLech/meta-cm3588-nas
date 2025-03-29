@@ -16,6 +16,7 @@ IMAGE_INSTALL:append = " \
     e2fsprogs e2fsprogs-resize2fs \
     dosfstools \
     parted \
+    btrfs-tools \
 "
 
 # rauc
@@ -26,6 +27,10 @@ IMAGE_INSTALL:append = " pciutils"
 
 # NVME tool
 IMAGE_INSTALL:append = " nvme-cli"
+
+# NVME mount service
+IMAGE_INSTALL:append = " nvme-mount"
+SYSTEMD_AUTO_ENABLE:nvme-mount = "enable"
 
 # avahi for zeroconf discovery
 IMAGE_INSTALL:append = " avahi-daemon avahi-utils"

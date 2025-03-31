@@ -7,8 +7,9 @@ SRC_URI += " \
 "
 
 do_install:append() {
-    sed -i '/^After=/ s/$/ nvme-mount.service/' ${D}${systemd_unitdir}/system/smb.service
+    sed -i '/^After=/ s/$/ nvme-mount.service/' ${D}${systemd_system_unitdir}/smb.service
     sed -i '$a[global]\ninclude = /etc/${BPN}/includes.conf' ${D}${sysconfdir}/${BPN}/smb.conf
+    sed -i 's/\/var\/run\//\/run\//' ${D}${sysconfdir}/tmpfiles.d/samba.conf
     install -d ${D}${sysconfdir}/${BPN}/smb.conf.d
     install -m 0644 ${UNPACKDIR}/nvme.conf ${D}${sysconfdir}/${BPN}/smb.conf.d/
     install -m 0644 ${UNPACKDIR}/includes.conf ${D}${sysconfdir}/${BPN}/

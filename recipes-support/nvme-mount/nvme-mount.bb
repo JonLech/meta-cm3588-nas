@@ -22,8 +22,8 @@ RDEPENDS:${PN} = " \
 inherit systemd
 
 do_install:append() {
-    install -d ${D}${systemd_unitdir}/system
-    install -m 0644 ${S}/${BPN}.service ${D}${systemd_unitdir}/system/
+    install -d ${D}${systemd_system_unitdir}
+    install -m 0644 ${S}/${BPN}.service ${D}${systemd_system_unitdir}/
 
     install -d ${D}${libexecdir}
     install -m 0755 ${S}/${BPN} ${D}${libexecdir}/

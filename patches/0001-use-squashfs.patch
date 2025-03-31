@@ -1,0 +1,134 @@
+From 00d5918a1e862599a840b6dc94ed643f84a90179 Mon Sep 17 00:00:00 2001
+From: Jon Lech Johansen <jon@doubletwist.com>
+Date: Sun, 30 Mar 2025 18:01:17 -0500
+Subject: [PATCH] use squashfs
+
+---
+ conf/machine/include/rockchip-extlinux.inc                  | 2 +-
+ conf/machine/include/rockchip-wic.inc                       | 2 +-
+ .../rk-rauc-demo/recipes-bsp/u-boot/files/boot.cmd.in       | 2 +-
+ .../rk-rauc-demo/recipes-core/base-files/files/fstab        | 6 +++---
+ .../recipes-core/rauc-bundles/rockchip-rauc-bundle.bb       | 2 +-
+ .../rk-rauc-demo/recipes-core/rauc/files/system.conf        | 4 ++--
+ .../rk-rauc-demo/recipes-core/systemd/files/35-rootfsB.conf | 2 --
+ .../rk-rauc-demo/recipes-core/systemd/files/data.mount      | 1 +
+ wic/rockchip.wks                                            | 2 +-
+ 9 files changed, 11 insertions(+), 12 deletions(-)
+
+diff --git a/conf/machine/include/rockchip-extlinux.inc b/conf/machine/include/rockchip-extlinux.inc
+index fddab73..7dd0898 100644
+--- a/conf/machine/include/rockchip-extlinux.inc
++++ b/conf/machine/include/rockchip-extlinux.inc
+@@ -16,7 +16,7 @@ UBOOT_EXTLINUX_ROOT ?= "root=PARTLABEL=rootfsA"
+ UBOOT_EXTLINUX_FDTDIR ?= "${@bb.utils.contains('KERNEL_IMAGETYPE', 'fitImage', '', '/boot', d)}"
+ UBOOT_EXTLINUX_FDT ?= "${@bb.utils.contains('KERNEL_IMAGETYPE', 'fitImage', '', '/boot/${NONFITDT}', d)}"
+ UBOOT_EXTLINUX_CONSOLE ?= "earlycon console=tty1 console=${RK_CONSOLE_DEVICE},${RK_CONSOLE_BAUD}n8"
+-UBOOT_EXTLINUX_KERNEL_ARGS ?= "rootwait rw rootfstype=ext4"
++UBOOT_EXTLINUX_KERNEL_ARGS ?= "rootwait rw rootfstype=squashfs"
+ UBOOT_EXTLINUX_KERNEL_IMAGE ?= "/boot/${KERNEL_IMAGETYPE}"
+ UBOOT_EXTLINUX_LABELS ?= "default"
+ UBOOT_EXTLINUX_MENU_DESCRIPTION:default ?= "${MACHINE}"
+diff --git a/conf/machine/include/rockchip-wic.inc b/conf/machine/include/rockchip-wic.inc
+index 0e0aa5d..d4d5e65 100644
+--- a/conf/machine/include/rockchip-wic.inc
++++ b/conf/machine/include/rockchip-wic.inc
+@@ -10,7 +10,7 @@ SPL_BINARY ?= "idbloader.img"
+ # WIC_COMPRESSION_EXTENSION = ".xz"
+ WIC_COMPRESSION_EXTENSION ?= ""
+ IMAGE_FSTYPES += "wic${WIC_COMPRESSION_EXTENSION} wic.bmap"
+-IMAGE_FSTYPES:append:rk-rauc-demo = " ext4"
++IMAGE_FSTYPES:append:rk-rauc-demo = " squashfs-lz4"
+ WKS_FILE ?= "rockchip.wks"
+ WKS_FILE_DEPENDS ?= " \
+ 	e2fsprogs-native \
+diff --git a/dynamic-layers/rk-rauc-demo/recipes-bsp/u-boot/files/boot.cmd.in b/dynamic-layers/rk-rauc-demo/recipes-bsp/u-boot/files/boot.cmd.in
+index 0887d2b..3c4ab22 100644
+--- a/dynamic-layers/rk-rauc-demo/recipes-bsp/u-boot/files/boot.cmd.in
++++ b/dynamic-layers/rk-rauc-demo/recipes-bsp/u-boot/files/boot.cmd.in
+@@ -47,5 +47,5 @@ else
+   reset
+ fi
+ 
+-ext4load ${RAUC_BOOTDEV} ${kernel_addr_r} @@KERNEL_BOOTFILE@@
++sqfsload ${RAUC_BOOTDEV} ${kernel_addr_r} @@KERNEL_BOOTFILE@@
+ bootm ${kernel_addr_r}
+diff --git a/dynamic-layers/rk-rauc-demo/recipes-core/base-files/files/fstab b/dynamic-layers/rk-rauc-demo/recipes-core/base-files/files/fstab
+index 3be093e..65802d9 100644
+--- a/dynamic-layers/rk-rauc-demo/recipes-core/base-files/files/fstab
++++ b/dynamic-layers/rk-rauc-demo/recipes-core/base-files/files/fstab
+@@ -1,5 +1,5 @@
+-/dev/root            /                    auto       x-systemd.growfs                   1  1
++/dev/root            /                    auto       defaults                           1  1
+ proc                 /proc                proc       defaults                           0  0
+ devpts               /dev/pts             devpts     mode=0620,ptmxmode=0666,gid=5      0  0
+-tmpfs                /run                 tmpfs      mode=0755,nodev,nosuid,strictatime 0  0
+-tmpfs                /var/volatile        tmpfs      defaults                           0  0
++tmpfs                /run                 tmpfs      mode=0755,noexec,nodev,nosuid,strictatime 0  0
++tmpfs                /var/volatile        tmpfs      defaults,noexec,nodev,nosuid       0  0
+diff --git a/dynamic-layers/rk-rauc-demo/recipes-core/rauc-bundles/rockchip-rauc-bundle.bb b/dynamic-layers/rk-rauc-demo/recipes-core/rauc-bundles/rockchip-rauc-bundle.bb
+index 5a42f59..bb7e1ba 100644
+--- a/dynamic-layers/rk-rauc-demo/recipes-core/rauc-bundles/rockchip-rauc-bundle.bb
++++ b/dynamic-layers/rk-rauc-demo/recipes-core/rauc-bundles/rockchip-rauc-bundle.bb
+@@ -8,7 +8,7 @@ RAUC_BUNDLE_DESCRIPTION = "RAUC Demo Bundle"
+ RAUC_BUNDLE_FORMAT = "verity"
+ RAUC_BUNDLE_SLOTS = "rootfs"
+ RAUC_SLOT_rootfs = "core-image-base"
+-RAUC_SLOT_rootfs[fstype] = "ext4"
++RAUC_SLOT_rootfs[fstype] = "squashfs-lz4"
+ 
+ RAUC_KEY_FILE := "${THISDIR}/files/development-1.key.pem"
+ RAUC_CERT_FILE := "${THISDIR}/files/development-1.cert.pem"
+diff --git a/dynamic-layers/rk-rauc-demo/recipes-core/rauc/files/system.conf b/dynamic-layers/rk-rauc-demo/recipes-core/rauc/files/system.conf
+index 4945c67..f765ffd 100644
+--- a/dynamic-layers/rk-rauc-demo/recipes-core/rauc/files/system.conf
++++ b/dynamic-layers/rk-rauc-demo/recipes-core/rauc/files/system.conf
+@@ -8,10 +8,10 @@ path=/etc/rauc/ca.cert.pem
+ 
+ [slot.rootfs.0]
+ device=/dev/disk/by-partlabel/rootfsA
+-type=ext4
++type=raw
+ bootname=A
+ 
+ [slot.rootfs.1]
+ device=/dev/disk/by-partlabel/rootfsB
+-type=ext4
++type=raw
+ bootname=B
+diff --git a/dynamic-layers/rk-rauc-demo/recipes-core/systemd/files/35-rootfsB.conf b/dynamic-layers/rk-rauc-demo/recipes-core/systemd/files/35-rootfsB.conf
+index 31a7c06..36c4920 100644
+--- a/dynamic-layers/rk-rauc-demo/recipes-core/systemd/files/35-rootfsB.conf
++++ b/dynamic-layers/rk-rauc-demo/recipes-core/systemd/files/35-rootfsB.conf
+@@ -3,5 +3,3 @@ Type=root
+ Label=rootfsB
+ Weight=250
+ SizeMaxBytes=5G
+-Format=ext4
+-GrowFileSystem=yes
+diff --git a/dynamic-layers/rk-rauc-demo/recipes-core/systemd/files/data.mount b/dynamic-layers/rk-rauc-demo/recipes-core/systemd/files/data.mount
+index c81a55b..4df6979 100644
+--- a/dynamic-layers/rk-rauc-demo/recipes-core/systemd/files/data.mount
++++ b/dynamic-layers/rk-rauc-demo/recipes-core/systemd/files/data.mount
+@@ -5,6 +5,7 @@ Description=data partition
+ What=/dev/disk/by-partlabel/data
+ Where=/data
+ Type=ext4
++Options=defaults,noexec,nodev,nosuid
+ 
+ [Install]
+ WantedBy=multi-user.target
+diff --git a/wic/rockchip.wks b/wic/rockchip.wks
+index cabdb65..00e9a98 100644
+--- a/wic/rockchip.wks
++++ b/wic/rockchip.wks
+@@ -26,6 +26,6 @@ part uboot_env --offset 8128s  --fixed-size 32K   --fstype=none --part-name uboo
+ part reserved2 --offset 8192s  --fixed-size 4096K --fstype=none --part-name reserved2
+ part loader2   --offset 16384s --fixed-size 4096K --fstype=none --part-name loader2   --source rawcopy --sourceparams="file=u-boot.${UBOOT_SUFFIX}"
+ part atf       --offset 24576s --fixed-size 4096K --fstype=none --part-name atf
+-part /         --label rootfsA --active           --fstype=ext4 --part-name rootfsA   --source rootfs  --part-type ${ROOT_DPS}
++part /         --active                           --fstype=squashfs --part-name rootfsA   --source rootfs  --part-type ${ROOT_DPS} --mkfs-extraopts="-comp lz4"
+ 
+ bootloader --ptable gpt
+-- 
+2.34.1
+

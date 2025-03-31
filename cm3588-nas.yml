@@ -4,8 +4,14 @@ header:
 machine: nanopc-nas
 distro: naxos
 
-target: cm3588nas-image
-#target: rockchip-rauc-bundle
+target:
+  - cm3588nas-image
+  - rockchip-rauc-bundle
+
+defaults:
+  repos:
+    patches:
+      repo: "meta-cm3588-nas"
 
 repos:
   meta-cm3588-nas:
@@ -35,6 +41,9 @@ repos:
     url: https://git.yoctoproject.org/meta-rockchip
     commit: 0aba79e47951b049bcdd39e07f660c665e257393
     path: "layers/meta-rockchip"
+    patches:
+      squashfs:
+        path: "patches/0001-use-squashfs.patch"
   meta-rauc:
     url: https://github.com/rauc/meta-rauc
     commit: 2ee80ebc81c30d34fe7a86ef8e8e2e580f569641
@@ -42,6 +51,7 @@ repos:
 
 local_conf_header:
   meta-cm3588-nas: |
+    REPRODUCIBLE_TIMESTAMP_ROOTFS = "${@os.popen('git log -1 --pretty=%ct HEAD').read().strip()}"
     INHERIT += "extrausers"
     EXTRA_USERS_PARAMS = "\
         usermod -p '$(openssl passwd naxos)' root; \

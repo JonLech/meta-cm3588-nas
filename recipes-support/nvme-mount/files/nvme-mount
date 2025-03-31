@@ -17,7 +17,7 @@ FS_INTERFACE="org.freedesktop.UDisks2.Filesystem"
 PT_INTERFACE="org.freedesktop.UDisks2.PartitionTable"
 DBUS_MANAGER="org.freedesktop.DBus.ObjectManager"
 
-MOUNT_CMD="busctl call --json=pretty \$UDISKS_SERVICE \${UDISKS_BD_PATH} \${UDISKS_SERVICE}.Filesystem Mount \"a{sv}\" 0 | jq -r '.data[0]'"
+MOUNT_CMD="busctl call --json=pretty \$UDISKS_SERVICE \${UDISKS_BD_PATH} \${UDISKS_SERVICE}.Filesystem Mount \"a{sv}\" 1 options s noexec | jq -r '.data[0]'"
 
 read -r FS_SIZE FS_MOUNTPS HAS_PT <<< $(busctl call --json=pretty "$UDISKS_SERVICE" "$UDISKS_PATH" "$DBUS_MANAGER" GetManagedObjects | jq ".data[][\"${UDISKS_BD_PATH}\"]" | jq -r "[(.[\"$FS_INTERFACE\"].Size.data // 0), (.[\"$FS_INTERFACE\"].MountPoints.data | length // 0), (.[\"$PT_INTERFACE\"] | length > 0 // false | if . then 1 else 0 end)] | join(\" \")")
 

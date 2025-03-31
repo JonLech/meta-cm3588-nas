@@ -1,0 +1,27 @@
+From 49b49472a14d1334578a0edfd0a807b7c47a82f2 Mon Sep 17 00:00:00 2001
+From: Jon Lech Johansen <jon@doubletwist.com>
+Date: Sun, 30 Mar 2025 19:13:53 -0500
+Subject: [PATCH] add noexec to user runtime tmp dir
+
+Upstream-Status: Pending
+
+---
+ src/login/user-runtime-dir.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/login/user-runtime-dir.c b/src/login/user-runtime-dir.c
+index b242f834293..09f39c9f86b 100644
+--- a/src/login/user-runtime-dir.c
++++ b/src/login/user-runtime-dir.c
+@@ -96,7 +96,7 @@ static int user_mkdir_runtime_path(
+                 if (r < 0 && r != -EEXIST)
+                         return log_error_errno(r, "Failed to create %s: %m", runtime_path);
+ 
+-                r = mount_nofollow_verbose(LOG_DEBUG, "tmpfs", runtime_path, "tmpfs", MS_NODEV|MS_NOSUID, options);
++                r = mount_nofollow_verbose(LOG_DEBUG, "tmpfs", runtime_path, "tmpfs", MS_NOEXEC|MS_NODEV|MS_NOSUID, options);
+                 if (r < 0) {
+                         if (!ERRNO_IS_PRIVILEGE(r)) {
+                                 log_error_errno(r, "Failed to mount per-user tmpfs directory %s: %m", runtime_path);
+-- 
+2.34.1
+

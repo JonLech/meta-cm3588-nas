@@ -1,7 +1,7 @@
 require recipes-extended/images/core-image-full-cmdline.bb
 
 IMAGE_FEATURES += "ssh-server-openssh"
-#IMAGE_FEATURES += "read-only-rootfs"
+IMAGE_FEATURES += "read-only-rootfs"
 
 IMAGE_INSTALL:append = " vim xz zip tar"
 
@@ -47,3 +47,16 @@ IMAGE_INSTALL:append = " linux-firmware-rtl-nic"
 
 # firmware for GPU
 IMAGE_INSTALL:append = " linux-firmware-mali-csffw-arch108"
+
+# Need to create these in advance due to read-only rootfs
+ROOTFS_POSTPROCESS_COMMAND += "create_mount_points; "
+create_mount_points() {
+    mkdir -p ${IMAGE_ROOTFS}/data
+    mkdir -p ${IMAGE_ROOTFS}/media/nvme
+}
+
+# We have an overlay for /etc/ssh so get rid of default file
+do_delete_default_ssh() {
+    rm -f ${IMAGE_ROOTFS}/etc/default/ssh
+}
+addtask delete_default_ssh after do_rootfs before do_image

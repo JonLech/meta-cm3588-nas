@@ -17,21 +17,21 @@ repos:
   meta-cm3588-nas:
   poky:
     url: https://git.yoctoproject.org/poky
-    commit: 5d81f07c16c7e3be8310158796f6c23eb15de74d
+    commit: 2859d5fb9d3a1e17a8953400f83758fc04df44ca
     path: "layers/poky"
     layers:
       meta:
       meta-poky:
   meta-arm:
     url: https://git.yoctoproject.org/meta-arm
-    commit: 34c8608d87959b2ef2897054f90246749a3c582e
+    commit: 3d3b28ee73e7a7a8b0a477dd921d7403dd4eb742
     path: "layers/meta-arm"
     layers:
       meta-arm:
       meta-arm-toolchain:
   meta-openembedded:
     url: https://git.openembedded.org/meta-openembedded
-    commit: 868c11831bb5932d57d6a19b9a5feb3902863748
+    commit: 292e40fe97909bcfc961cdfb8dddd92b105063b5
     path: "layers/meta-openembedded"
     layers:
       meta-oe:
@@ -46,7 +46,7 @@ repos:
         path: "patches/0001-use-squashfs.patch"
   meta-rauc:
     url: https://github.com/rauc/meta-rauc
-    commit: 2ee80ebc81c30d34fe7a86ef8e8e2e580f569641
+    commit: 407903bebdf11ec6ddf53b7088f92ea835f9f595
     path: "layers/meta-rauc"
 
 local_conf_header:

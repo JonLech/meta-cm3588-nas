@@ -4,9 +4,12 @@ SRC_URI += "file://0001-add-noexec-to-user-runtime-tmp-dir.patch"
 
 inherit overlayfs
 
-OVERLAYS="/var/lib /etc/ssh"
+OVERLAYS = "/var/lib /etc/ssh"
 OVERLAYFS_WRITABLE_PATHS[data] = "${OVERLAYS}"
 SYSTEMD_SERVICE:${BPN}:remove = "${BPN}-overlays.service"
+
+# https://lists.yoctoproject.org/g/yocto-patches/message/1529
+LDFLAGS:append:aarch64 = " -Wl,-z,gcs-report-dynamic=none"
 
 do_install:append() {
     rm -f ${D}${systemd_system_unitdir}/${BPN}-overlays.service
